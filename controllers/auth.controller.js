@@ -1,26 +1,55 @@
 import passport from 'passport';
-import session from 'express-session'
-
-export const signupWithGoogle = passport.authenticate('google', { scope: ['profile', 'email'] })
-export const googleAuthCallback = passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' })
 
 export const login = async (req, res) => {
-        console.log("SESSION : ",req.session)
+        console.log("SESSION : ", req.session)
 }
 
-export const logout = async (req, res) => {
-        try {
-                console.log("IN LOGOUT")
+// export const logout = async (req, res) => {
+        
+// }
 
-                req.logout(err => {
-                        req.session.destroy(() => {
-                                if (err) return (err);
-                                res.status(200).json({ message: 'Logout successful.' })
-                                console.log("LOGOUT SUCCESSFUL.")
-                        })
-                })
-        } catch (error) {
-                console.log('Something went wrong.', error.message)
-                res.status(500).json({ message: 'Something went wrong.' })
-        }
-}
+// Import dependencies
+// import passport from 'passport';
+// import session from 'express-session';
+
+// // OAuth routes
+// export const signupWithGoogle = (req, res, next) => {
+//         passport.authenticate('google', (err, user, info) => {
+//                 if (err) return next(err);
+//                 if (!user) return res.redirect('/login');
+//                 req.logIn(user, err => {
+//                         if (err) return next(err);
+//                         res.redirect('/home');
+//                 });
+//                 console.log('sessiom : ',req.session)
+//         })(req, res, next);
+// }
+
+
+// export const googleAuthCallback = (req, res, next) => {
+//         passport.authenticate('google', (err, user, info) => {
+//                 if (err) return next(err);
+//                 if (!user) return res.redirect('/login');
+//                 res.redirect('/home');
+//                 console.log('sessiom : ',req.session)
+//         })(req, res, next);
+
+// }
+// // Login route
+// export const login = (req, res) => {
+//         console.log("SESSION: ", req.session);
+// }
+
+// // Logout route
+// export const logout = (req, res) => {
+
+//         req.logout(err => {
+//                 if (err) return next(err);
+
+//                 req.session.destroy(err => {
+//                         res.redirect('/');
+//                 });
+//         });
+
+// }
+
