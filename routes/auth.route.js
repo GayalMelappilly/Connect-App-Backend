@@ -11,8 +11,6 @@ function isLoggedIn(req, res, next) {
 }
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }),(req,res,next)=>{
-    console.log("SESSION $ : ",req.session)
-    console.log("USER : $ ", req.user)
     next()
 })
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/auth/failure' }), (req,res)=>{
@@ -21,21 +19,10 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
         res.status(401).json({message: 'Sign in failed'})
     }
     const userData = req.user;
-    const redirectUrl = 'http://localhost:5173';
+    const redirectUrl = 'http://localhost:5173/signup';
     res.redirect(`${redirectUrl}/?userData=${JSON.stringify(userData)}`);
 
 })
-
-// router.get('/success', (req, res)=>{
-//     if(!req.user){
-//         console.log("SIGN IN FAILED")
-//         res.status(401).json({message: 'Sign in failed'})
-//     }
-//     console.log("USER : ",req.user)
-//     console.log("SESSION : ",req.session)
-//     // res.status(201).json({ user: req.user });
-//     res.status(201).json({ message: 'Sign in successful.' , user: req.user});
-// })
 
 router.get('/failure', (req, res)=>{
     res.status(401).json({message: 'Sign in failed', user: null})
