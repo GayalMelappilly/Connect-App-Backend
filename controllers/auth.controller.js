@@ -1,4 +1,3 @@
-import passport from 'passport';
 
 export const logout = (req, res) => {
         try {

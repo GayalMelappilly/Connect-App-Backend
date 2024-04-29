@@ -1,4 +1,4 @@
-import express, { json } from 'express'
+import express from 'express'
 import { failed, signup } from '../controllers/auth.controller.js'
 import passport from 'passport'
 import cookieSession from 'cookie-session';
