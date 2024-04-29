@@ -1,55 +1,44 @@
 import passport from 'passport';
 
-export const login = async (req, res) => {
-        console.log("SESSION : ", req.session)
+export const logout = (req, res) => {
+        try {
+                console.log("LOG OUT")
+                req.logout((err) => {
+                        if (err) {
+                                console.log(err)
+                                res.send('LOGOUT FAILED')
+                                return res.status(500).json({ message: 'Failed to logout. QQQ' });
+                        }
+                        console.log("LOG OUT SUCCESS /// USER : ", req.user)
+                        req.session.destroy((err) => {
+                                if (err) {
+                                        console.error('Error destroying session:', err);
+                                        return res.status(500).json({ message: 'Failed to logout.' });
+                                }
+                                console.log("SESSION CLEARED SUCCESSFULLY. USER", req.session)
+                                res.status(201).json({ message: 'Logout successful.' });
+                        });
+                });
+
+        } catch (error) {
+                console.log('Something went wrong.', error.message)
+                res.status(500).json({ message: 'Something went wrong.' })
+        }
 }
 
-// export const logout = async (req, res) => {
-        
-// }
 
-// Import dependencies
-// import passport from 'passport';
-// import session from 'express-session';
+export const signup = (req, res) => {
+        if (!req.user) {
+                console.log("SIGN IN FAILED")
+                res.status(401).json({ message: 'Sign in failed' })
+        }
+        const userData = req.user;
 
-// // OAuth routes
-// export const signupWithGoogle = (req, res, next) => {
-//         passport.authenticate('google', (err, user, info) => {
-//                 if (err) return next(err);
-//                 if (!user) return res.redirect('/login');
-//                 req.logIn(user, err => {
-//                         if (err) return next(err);
-//                         res.redirect('/home');
-//                 });
-//                 console.log('sessiom : ',req.session)
-//         })(req, res, next);
-// }
+        res.cookie('userData', JSON.stringify(userData));
 
+        res.redirect('http://localhost:5173/signup');
+}
 
-// export const googleAuthCallback = (req, res, next) => {
-//         passport.authenticate('google', (err, user, info) => {
-//                 if (err) return next(err);
-//                 if (!user) return res.redirect('/login');
-//                 res.redirect('/home');
-//                 console.log('sessiom : ',req.session)
-//         })(req, res, next);
-
-// }
-// // Login route
-// export const login = (req, res) => {
-//         console.log("SESSION: ", req.session);
-// }
-
-// // Logout route
-// export const logout = (req, res) => {
-
-//         req.logout(err => {
-//                 if (err) return next(err);
-
-//                 req.session.destroy(err => {
-//                         res.redirect('/');
-//                 });
-//         });
-
-// }
-
+export const failed = (req, res) => {
+        res.status(401).json({ message: 'Sign in failed', user: null })
+}
