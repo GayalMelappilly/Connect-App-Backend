@@ -6,6 +6,7 @@ import cors from 'cors'
 import passport from 'passport'
 import authRouter from './routes/auth.route.js'
 import userRouter from './routes/user.route.js'
+import messageRoute from './routes/message.route.js'
 import './middlewares/passport.js'
 
 const app = express()
@@ -36,6 +37,7 @@ app.use(passport.session())
 
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
+app.use('/message', messageRoute)
 
 app.listen(PORT, () => {
     connectDB()

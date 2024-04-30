@@ -4,12 +4,7 @@ import passport from 'passport'
 import cookieSession from 'cookie-session';
 import { logout } from '../controllers/auth.controller.js';
 
-
 const router = express.Router()
-
-// function isLoggedIn(req, res, next) {
-//     req.user ? next() : res.sendStatus(401);
-// }
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account' }), (req, res, next) => {
     next()
