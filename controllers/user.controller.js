@@ -60,13 +60,22 @@ export const addFriend = async (req, res) => {
                 $out: 'user-contact-list'
             }
         ]).exec().then((data) => {
-            console.log("AFTER AGGREGATION : ", data);
+            res.status(201).json(data)
         }).catch((err) => {
-            console.error("Error during aggregation:", err);
+            res.status(500).json({ message: err.message })
         });
 
     }
     catch (error) {
         console.log("ERROR IN ADD FRIEND : ", error)
+    }
+}
+
+
+export const requestList = async (req,res) => {
+    try {
+        mongoose.Collection()
+    } catch (error) {
+        
     }
 }

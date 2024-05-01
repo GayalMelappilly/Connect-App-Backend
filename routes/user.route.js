@@ -7,4 +7,6 @@ router.get('/list', userList)
 
 router.post('/add-friend', addFriend)
 
+route.get('/request-list', requestList)
+
 export default router
