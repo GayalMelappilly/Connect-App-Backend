@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js"
+import UserContactList from "../models/contact.model.js";
 
 export const userList = async (req, res) => {
     try {
@@ -57,7 +58,7 @@ export const addFriend = async (req, res) => {
                 }
             },
             {
-                $out: 'user-contact-list'
+                $out: 'user-contact-lists'
             }
         ]).exec().then((data) => {
             res.status(201).json(data)
@@ -73,9 +74,18 @@ export const addFriend = async (req, res) => {
 
 
 export const requestList = async (req,res) => {
+
+    const userId = req.query.id
+
     try {
-        mongoose.Collection()
+        UserContactList.findOne({_id: userId}).then((data)=>{
+            res.status(201).json(data)
+        }).catch((err)=>{
+            console.log("ERROR IN REQUEST LIST : ", err)
+            res.status(500).json({message: err.message})
+        })
     } catch (error) {
-        
+        console.log("ERROR IN REQUEST LIST CATCH : ", error)
+        res.status(500).json({message: err.message})
     }
 }

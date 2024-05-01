@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const UserContactListSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
@@ -10,8 +10,8 @@ const UserContactListSchema = new mongoose.Schema({
     outgoingRequests: [{
         _id: mongoose.Schema.Types.ObjectId
     }]
-});
+},{ timestamps: true });
 
-const UserContactListModel = mongoose.model('user-contact-list', UserContactListSchema);
+const UserContactList = mongoose.model('user-contact-list', UserContactListSchema);
 
-module.exports = UserContactListModel;
+export default UserContactList;

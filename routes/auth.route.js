@@ -13,7 +13,7 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 
 router.get('/failure', failed)
 
-router.post('/logout', logout)
+router.get('/logout', logout)
 
 
 export default router
