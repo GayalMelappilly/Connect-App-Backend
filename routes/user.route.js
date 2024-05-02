@@ -11,7 +11,7 @@ router.get('/request-list', requestList)
 
 router.put('/req-accept', reqAccept)
 
-router.put('/req-reject', reqDecline)
+router.put('/req-decline', reqDecline)
 
 router.post('/contacts', getContacts)
 

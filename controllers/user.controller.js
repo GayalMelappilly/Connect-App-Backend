@@ -21,6 +21,7 @@ export const userList = async (req, res) => {
 
 
 export const addFriend = async (req, res) => {
+    console.log("ADD FRIEND !!!!")
     try {
         const senderDetails = req.body.senderDetails
         const receiverDetails = req.body.receiverDetails
@@ -150,8 +151,10 @@ export const requestList = async (req, res) => {
 
     const userId = req.query.id
 
+    console.log("REQ LIST!!!!!")
+
     try {
-        UserContactList.findOne({ _id: userId }).then((data) => {
+        await UserContactList.findOne({ _id: userId }).then((data) => {
             res.status(201).json(data)
         }).catch((err) => {
             console.log("ERROR IN REQUEST LIST : ", err)
@@ -170,46 +173,40 @@ export const reqAccept = async (req, res) => {
         const sender = req.body.reqFrom
         const receiver = req.body.reqTo
 
-        console.log("SENDER : ", sender, " RECEIVER : ", receiver)
+        console.log("SENDER ID : ", sender._id)
+        console.log("RECEIVER ID : ", receiver._id)
 
         await UserContactList.updateOne(
             { _id: sender._id },
             {
-                $addToSet: {
-                    contacts: receiver
-                }
+                $addToSet: { contacts: receiver },
+                $pull: { outgoingRequests: { _id: receiver._id } }
             },
-            {
-                $pull: {
-                    outgoingRequests: {
-                        _id: receiver._id
-                    }
-                }
-            }
-        )
+            { new: true }
+
+        ).then((data) => {
+            console.log("UPDATED DATA 1 : ", data)
+        }).catch((err) => {
+            console.log("ERROR IN REQ ACCEPT : ", err)
+        })
 
         await UserContactList.updateOne(
             { _id: receiver._id },
             {
-                $addToSet: {
-                    contacts: sender
-                }
+                $addToSet: { contacts: sender },
+                $pull: { incomingRequests: { _id: sender._id } },
             },
-            {
-                $pull: {
-                    incomingRequests: {
-                        _id: sender._id
-                    }
-                }
-            }
-        )
-
-        console.log('REACHED HERE!')
-        UserContactList.findOne({ _id: receiver._id }).then((data) => {
-            res.status(201).json(data)
+            { new: true }
+        ).then((data) => {
+            console.log("UPDATED DATA 2 : ", data)
         }).catch((err) => {
             console.log("ERROR IN REQ ACCEPT : ", err)
-            res.status(500).json({ message: err.message })
+        })
+
+        console.log('REACHED HERE!')
+        UserContactList.findOne({ _id: receiver._id }).then((data)=>{
+            console.log("UPDATED DATA : ",data)
+            res.status(201).json(data)
         })
     } catch (error) {
         console.log("ERROR IN REQ ACCEPT : ", error)
@@ -221,28 +218,33 @@ export const reqAccept = async (req, res) => {
 export const reqDecline = async (req, res) => {
 
     try {
-        const sender = req.query.reqFrom
-        const receiver = req.query.reqTo
+        const sender = req.body.reqFrom
+        const receiver = req.body.reqTo
 
-        UserContactList.updateOne(
+        await UserContactList.updateOne(
             { _id: sender._id },
-            {
-                $pull: {
-                    outgoingRequests: receiver
-                }
-            }
-        )
+            { $pull: { outgoingRequests: { _id: receiver._id } } },
+            { new: true }
+        ).then((data) => {
+            console.log("UPDATED DATA 1 : ", data)
+        }).catch((err) => {
+            console.log("ERROR IN REQ ACCEPT : ", err)
+        })
 
-        UserContactList.updateOne(
+        await UserContactList.updateOne(
             { _id: receiver._id },
-            {
-                $pull: {
-                    incomingRequests: sender
-                }
-            }
-        )
+            { $pull: { incomingRequests: { _id: sender._id } } },
+            { new: true }
+        ).then((data) => {
+            console.log("UPDATED DATA 2 : ", data)
+        }).catch((err) => {
+            console.log("ERROR IN REQ ACCEPT : ", err)
+        })
 
-        res.status(201).json({ msg: 'DECLINED SUCCESSFULLY' })
+        UserContactList.findOne({ _id: receiver._id }).then((data)=>{
+            console.log("UPDATED DATA : ",data)
+            res.status(201).json(data)
+        })
     } catch (error) {
         console.log("ERROR IN REQ DECLINE : ", error)
         res.status(500).json({ message: error.message })
@@ -253,7 +255,7 @@ export const reqDecline = async (req, res) => {
 export const getContacts = async (req, res) => {
     try {
         const userId = req.body.userId
-        console.log("REACHED - ID : ",userId)
+        console.log("REACHED - ID : ", userId)
         UserContactList.findOne({ _id: userId }).then((data) => {
             res.status(201).json(data)
         }).catch((err) => {
