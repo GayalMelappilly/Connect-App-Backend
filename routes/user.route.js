@@ -13,6 +13,6 @@ router.put('/req-accept', reqAccept)
 
 router.put('/req-reject', reqDecline)
 
-router.put('/contacts', getContacts)
+router.post('/contacts', getContacts)
 
 export default router

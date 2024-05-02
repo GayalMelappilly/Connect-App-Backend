@@ -205,7 +205,12 @@ export const reqAccept = async (req, res) => {
         )
 
         console.log('REACHED HERE!')
-        res.status(201).json({ msg: 'ACCEPTED SUCCESSFULLY' })
+        UserContactList.findOne({ _id: receiver._id }).then((data) => {
+            res.status(201).json(data)
+        }).catch((err) => {
+            console.log("ERROR IN REQ ACCEPT : ", err)
+            res.status(500).json({ message: err.message })
+        })
     } catch (error) {
         console.log("ERROR IN REQ ACCEPT : ", error)
         res.status(500).json({ message: error.message })
