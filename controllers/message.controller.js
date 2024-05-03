@@ -7,7 +7,7 @@ export const sendMessage = async (req, res) => {
     try {
         const senderInfo = req.body.userInfo
         const receiverInfo = req.body.messageInfo
-        const message = req.body.message
+        const message = req.body.text
 
         const id = convertToUniqueKey(senderInfo._id, receiverInfo._id)
         console.log("ID : ", id)
@@ -24,10 +24,10 @@ export const sendMessage = async (req, res) => {
 
             await Conversation.updateOne({ _id: id },
                 {
-                     $push: { messages: newMessage._id } 
+                    $push: { messages: newMessage._id }
                 },
                 {
-                     new: true 
+                    new: true
                 }).then((data) => {
                     console.log("MESSAGE ADD TO EXISTING DOCUMENT", data)
                     res.status(201).json({ msg: "MESSAGE ADD TO EXISTING DOCUMENT" })
@@ -55,6 +55,24 @@ export const sendMessage = async (req, res) => {
 
 }
 
+export const getMessages = async (req, res) => {
+    try {
+        console.log("REACHED GET MESSAGES!!")
+        const senderId = req.body.senderId
+        const receiverId = req.body.receiverId
+
+        const id = convertToUniqueKey(senderId, receiverId)
+
+        Conversation.findOne({ _id: id })
+            .populate('messages')
+            .then((data) => {
+                console.log("DATA : ", data)
+                res.status(200).json(data)
+            })
+    } catch (error) {
+
+    }
+}
 
 
 
