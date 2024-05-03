@@ -1,6 +1,10 @@
 import mongoose from 'mongoose'
 
 const ConversationSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true
+    },
     participants: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -11,7 +15,6 @@ const ConversationSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId, 
             ref: 'Message',
-            default: []
         }
     ]
 }, { timestamps: true })
