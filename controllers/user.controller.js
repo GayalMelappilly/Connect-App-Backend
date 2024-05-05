@@ -151,7 +151,7 @@ export const requestList = async (req, res) => {
 
     const userId = req.query.id
 
-    console.log("REQ LIST!!!!!")
+    // console.log("REQ LIST!!!!!")
 
     try {
         await UserContactList.findOne({ _id: userId }).then((data) => {

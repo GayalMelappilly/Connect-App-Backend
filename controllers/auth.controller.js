@@ -8,7 +8,7 @@ export const logout = (req, res) => {
                                 res.send('LOGOUT FAILED')
                                 return res.status(500).json({ message: 'Failed to logout. QQQ' });
                         }
-                        console.log("LOG OUT SUCCESS /// USER : ", req.user)
+                        // console.log("LOG OUT SUCCESS /// USER : ", req.user)
                         req.session.destroy((err) => {
                                 if (err) {
                                         console.error('Error destroying session:', err);
