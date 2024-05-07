@@ -1,16 +1,17 @@
 import mongoose from 'mongoose'
 import Message from '../models/Message.model.js'
 import Conversation from '../models/conversation.model.js'
+import { getReceiverSocketId, io } from '../socket/socket.js'
 
 export const sendMessage = async (req, res) => {
-
     try {
         const senderInfo = req.body.userInfo
         const receiverInfo = req.body.messageInfo
         const message = req.body.text
 
+        // console.log("ID R : ", receiverInfo)
+        // console.log("ID S : ", senderInfo)
         const id = convertToUniqueKey(senderInfo._id, receiverInfo._id)
-        console.log("ID : ", id)
 
         const convoCheck = await Conversation.findOne({ _id: id })
 
@@ -20,34 +21,42 @@ export const sendMessage = async (req, res) => {
             message: message
         })
 
+        
         if (convoCheck) {
-
+            
             await Conversation.updateOne({ _id: id },
                 {
                     $push: { messages: newMessage._id }
                 },
                 {
                     new: true
-                }).then((data) => {
-                    console.log("MESSAGE ADD TO EXISTING DOCUMENT", data)
-                    res.status(201).json({ msg: "MESSAGE ADD TO EXISTING DOCUMENT" })
-                }).catch((err) => {
-                    console.log("ERROR IN ADDING MESSAGE TO EXISTING DOCUMENT", err)
-                    res.status(500).json({ msg: "ERROR IN ADDING MESSAGE TO EXISTING DOCUMENT" })
                 })
-        } else {
-            await Conversation.create({
-                _id: id,
-                participants: [senderInfo._id, receiverInfo._id],
-                messages: newMessage._id
-            }).then((data) => {
-                console.log("CONVERSATION CREATED", data)
-                res.status(201).json({ msg: "CONVERSATION CREATED" })
-            }).catch((err) => {
-                console.log("ERROR IN CREATING CONVERSATION", err)
-                res.status(500).json({ msg: "ERROR IN CREATING CONVERSATION" })
-            })
-        }
+            } else {
+                await Conversation.create({
+                    _id: id,
+                    participants: [senderInfo._id, receiverInfo._id],
+                    messages: newMessage._id
+                })
+            }
+            const receiverSocketId = getReceiverSocketId(receiverInfo._id)
+            const senderSocketId = getReceiverSocketId(senderInfo._id)
+    
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit('newMessage', newMessage)
+                console.log("MESSAGE EMITTED TO RECEIVER", newMessage, receiverInfo._id)
+            } else {
+                console.log("NO SOCKET ID FOR RECEIVER", receiverInfo._id)
+            }
+
+            if (senderSocketId) {
+                // Emit the "newMessage" event to the sender
+                io.to(senderSocketId).emit('newMessage', newMessage);
+                console.log("MESSAGE EMITTED TO SENDER", newMessage, senderInfo._id);
+            } else {
+                console.log("NO SOCKET ID FOR SENDER", senderInfo._id);
+            }
+
+            res.status(201).json({ msg: "MESSAGE UPDATED SUCCESSFULLY DB." })
     } catch (error) {
         console.log("ERROR IN SENDING MESSAGE : ", error)
         res.status(500).json({ msg: error.message })
@@ -66,11 +75,12 @@ export const getMessages = async (req, res) => {
         Conversation.findOne({ _id: id })
             .populate('messages')
             .then((data) => {
-                console.log("DATA : ", data)
+                // console.log("DATA : ", data)
                 res.status(200).json(data)
             })
     } catch (error) {
-
+        console.log("ERROR IN GETTING MESSAGES : ", error)
+        res.status(500).json({ msg: error.message })
     }
 }
 
