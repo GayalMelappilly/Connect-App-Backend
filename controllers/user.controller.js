@@ -1,15 +1,26 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js"
 import UserContactList from "../models/contact.model.js";
+import nodeMailer from 'nodemailer'
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 export const userList = async (req, res) => {
     try {
         const username = req.query.search
+        const userId = req.query.id
         console.log("USERNAME IN DB : ", username)
+        console.log("USER ID : ", userId)
         const userList = await User.find({
-            $or: [
-                { email: { $regex: new RegExp(username, 'i') } },
-                { displayName: { $regex: new RegExp(username, 'i') } }
+            $and: [
+                {
+                    $or: [
+                        { email: { $regex: new RegExp(username, 'i') } },
+                        { displayName: { $regex: new RegExp(username, 'i') } }
+                    ]
+                },
+                { _id: { $ne: userId } }
             ]
         });
         res.status(200).json(userList)
@@ -41,7 +52,7 @@ export const addFriend = async (req, res) => {
                     }
                 }
             )
-            console.log("UPDATED DATA : ", updatedData)
+            // console.log("UPDATED DATA : ", updatedData)
 
             const updatedData2 = await UserContactList.updateOne(
                 { _id: receiverDetails._id },
@@ -151,8 +162,6 @@ export const requestList = async (req, res) => {
 
     const userId = req.query.id
 
-    // console.log("REQ LIST!!!!!")
-
     try {
         await UserContactList.findOne({ _id: userId }).then((data) => {
             res.status(201).json(data)
@@ -176,7 +185,7 @@ export const reqAccept = async (req, res) => {
         console.log("SENDER ID : ", sender._id)
         console.log("RECEIVER ID : ", receiver._id)
 
-        await UserContactList.updateOne(
+        const updatedSender = await UserContactList.updateOne(
             { _id: sender._id },
             {
                 $addToSet: { contacts: receiver },
@@ -190,7 +199,7 @@ export const reqAccept = async (req, res) => {
             console.log("ERROR IN REQ ACCEPT : ", err)
         })
 
-        await UserContactList.updateOne(
+        const updatedReceiver = await UserContactList.updateOne(
             { _id: receiver._id },
             {
                 $addToSet: { contacts: sender },
@@ -204,8 +213,8 @@ export const reqAccept = async (req, res) => {
         })
 
         console.log('REACHED HERE!')
-        UserContactList.findOne({ _id: receiver._id }).then((data)=>{
-            console.log("UPDATED DATA : ",data)
+        UserContactList.findOne({ _id: receiver._id }).then((data) => {
+            console.log("UPDATED DATA : ", data)
             res.status(201).json(data)
         })
     } catch (error) {
@@ -221,7 +230,7 @@ export const reqDecline = async (req, res) => {
         const sender = req.body.reqFrom
         const receiver = req.body.reqTo
 
-        await UserContactList.updateOne(
+        const updatedSender = await UserContactList.updateOne(
             { _id: sender._id },
             { $pull: { outgoingRequests: { _id: receiver._id } } },
             { new: true }
@@ -231,7 +240,7 @@ export const reqDecline = async (req, res) => {
             console.log("ERROR IN REQ ACCEPT : ", err)
         })
 
-        await UserContactList.updateOne(
+        const updatedReceiver = await UserContactList.updateOne(
             { _id: receiver._id },
             { $pull: { incomingRequests: { _id: sender._id } } },
             { new: true }
@@ -241,8 +250,8 @@ export const reqDecline = async (req, res) => {
             console.log("ERROR IN REQ ACCEPT : ", err)
         })
 
-        UserContactList.findOne({ _id: receiver._id }).then((data)=>{
-            console.log("UPDATED DATA : ",data)
+        UserContactList.findOne({ _id: receiver._id }).then((data) => {
+            console.log("UPDATED DATA : ", data)
             res.status(201).json(data)
         })
     } catch (error) {
@@ -266,4 +275,38 @@ export const getContacts = async (req, res) => {
         console.log("ERROR IN GET CONTACTS CATCH : ", error)
         res.status(500).json({ message: error.message })
     }
+}
+
+
+export const inviteUser = async (req, res) => {
+
+    console.log("EMAIL ADDRESS : ", req.body.email)
+
+    const transporter = nodeMailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: process.env.GMAIL_ACCOUNT_ID,
+            pass: process.env.GMAIL_ACCOUNT_PASSWORD
+        }
+    });
+
+    const mailOptions = {
+        from: process.env.GMAIL_ACCOUNT_ID, // Sender address
+        to: req.body.email, // Recipient's email address
+        subject: 'Subject of the email', // Subject line
+        text: 'Body of the email' // Plain text body
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Error occurred:', error);
+            res.status(500).send('Error occurred while sending email.');
+        } else {
+            console.log('Email sent:', info.response);
+            res.send('Email sent successfully.');
+        }
+    });
 }
