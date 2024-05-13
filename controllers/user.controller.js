@@ -280,7 +280,10 @@ export const getContacts = async (req, res) => {
 
 export const inviteUser = async (req, res) => {
 
-    console.log("EMAIL ADDRESS : ", req.body.email)
+    const email = req.body.email
+    const user = req.body.user
+
+    const username = email.split('@');
 
     const transporter = nodeMailer.createTransport({
         service: 'gmail',
@@ -294,10 +297,23 @@ export const inviteUser = async (req, res) => {
     });
 
     const mailOptions = {
-        from: process.env.GMAIL_ACCOUNT_ID, // Sender address
-        to: req.body.email, // Recipient's email address
-        subject: 'Subject of the email', // Subject line
-        text: 'Body of the email' // Plain text body
+        from: process.env.GMAIL_ACCOUNT_ID,
+        to: email,
+        subject: 'Invitation to Join Connect - Say it with connect', 
+        text: `Dear ${username[0]},
+
+        You've been invited to join Connect by ${user.displayName} - ${user.email}.
+        
+        Connect: Say it with connect.
+        
+        Join us to connect, chat, and collaborate effortlessly!
+        
+        Accept your invitation here: http://localhost:5173/.
+        
+        Looking forward to seeing you online!
+        
+        Best regards,
+        Connect - Team`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

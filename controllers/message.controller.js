@@ -85,6 +85,33 @@ export const getMessages = async (req, res) => {
 }
 
 
+export const deleteMessage = async (req, res) => {
+    try {
+        const messageId = req.body.messageId
+        const senderId = req.body.senderId
+        const receiverId = req.body.receiverId
+
+        const id = convertToUniqueKey(senderId, receiverId)
+
+        await Conversation.updateOne({ _id: id },
+            {
+                $pull: { messages: messageId }
+            },
+            {
+                new: true
+            })
+
+        await Message.deleteOne({ _id: messageId })
+
+        res.status(201).json({ msg: "MESSAGE DELETED SUCCESSFULLY DB." })
+
+    } catch (error) {
+        console.log("ERROR IN DELETING MESSAGE : ", error)
+        res.status(500).json({ msg: error.message })
+    }
+}
+
+
 
 
 
