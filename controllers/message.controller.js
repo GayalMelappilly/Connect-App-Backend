@@ -93,7 +93,7 @@ export const deleteMessage = async (req, res) => {
 
         const id = convertToUniqueKey(senderId, receiverId)
 
-        await Conversation.updateOne({ _id: id },
+        const updated = await Conversation.updateOne({ _id: id },
             {
                 $pull: { messages: messageId }
             },
@@ -103,7 +103,12 @@ export const deleteMessage = async (req, res) => {
 
         await Message.deleteOne({ _id: messageId })
 
-        res.status(201).json({ msg: "MESSAGE DELETED SUCCESSFULLY DB." })
+        Conversation.findOne({ _id: id })
+            .populate('messages')
+            .then((data) => {
+                console.log("DATA : ", data)
+                res.status(200).json(data)
+            })
 
     } catch (error) {
         console.log("ERROR IN DELETING MESSAGE : ", error)
