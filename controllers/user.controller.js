@@ -299,7 +299,7 @@ export const inviteUser = async (req, res) => {
     const mailOptions = {
         from: process.env.GMAIL_ACCOUNT_ID,
         to: email,
-        subject: 'Invitation to Join Connect - Say it with connect', 
+        subject: 'Invitation to Join Connect - Say it with connect',
         text: `Dear ${username[0]},
 
         You've been invited to join Connect by ${user.displayName} - ${user.email}.
@@ -325,4 +325,39 @@ export const inviteUser = async (req, res) => {
             res.send('Email sent successfully.');
         }
     });
+}
+
+export const removeFriend = async (req, res) => {
+
+    try {
+        const user = req.body.details
+        const id = req.body.user._id
+
+        console.log(user.email)
+
+        await UserContactList.updateOne({ _id: id },
+            {
+                $pull: { contacts: { _id: user._id } }
+            },
+            {
+                new: true
+            })
+
+        await UserContactList.updateOne({ _id: user._id },
+            {
+                $pull: { contacts: { _id: id } }
+            },
+            {
+                new: true
+            })
+
+        UserContactList.findOne({ _id: id }).then((data) => {
+            console.log('UPDATED CONTACTS : ', data)
+            res.status(201).json(data)
+        })
+    } catch (error) {
+        console.log("ERROR IN REMOVE FRIEND : ", error)
+        res.status(500).json({ message: error.message })
+    }
+
 }
