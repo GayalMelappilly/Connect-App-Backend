@@ -30,7 +30,6 @@ export const userList = async (req, res) => {
     }
 }
 
-
 export const addFriend = async (req, res) => {
     console.log("ADD FRIEND !!!!")
     try {
@@ -157,7 +156,6 @@ export const addFriend = async (req, res) => {
     }
 }
 
-
 export const requestList = async (req, res) => {
 
     const userId = req.query.id
@@ -174,7 +172,6 @@ export const requestList = async (req, res) => {
         res.status(500).json({ message: err.message })
     }
 }
-
 
 export const reqAccept = async (req, res) => {
 
@@ -223,7 +220,6 @@ export const reqAccept = async (req, res) => {
     }
 }
 
-
 export const reqDecline = async (req, res) => {
 
     try {
@@ -260,7 +256,6 @@ export const reqDecline = async (req, res) => {
     }
 }
 
-
 export const getContacts = async (req, res) => {
     try {
         const userId = req.body.userId
@@ -276,7 +271,6 @@ export const getContacts = async (req, res) => {
         res.status(500).json({ message: error.message })
     }
 }
-
 
 export const inviteUser = async (req, res) => {
 
@@ -299,22 +293,37 @@ export const inviteUser = async (req, res) => {
     const mailOptions = {
         from: process.env.GMAIL_ACCOUNT_ID,
         to: email,
-        subject: 'Invitation to Join Connect - Say it with connect',
-        text: `Dear ${username[0]},
-
-        You've been invited to join Connect by ${user.displayName} - ${user.email}.
-        
-        Connect: Say it with connect.
-        
-        Join us to connect, chat, and collaborate effortlessly!
-        
-        Accept your invitation here: http://localhost:5173/.
-        
-        Looking forward to seeing you online!
-        
-        Best regards,
-        Connect - Team`
+        subject: 'Invitation to Join Connect - Say it with Connect',
+        html: `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="background-color: #f9f9f9; color: #333; margin: 0; padding: 0; font-family: Arial, sans-serif;">
+                <div style="width: 100%; padding: 20px;">
+                    <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); max-width: 600px; margin: 0 auto;">
+                        <div style="text-align: center; border-bottom: 1px solid #eaeaea; padding-bottom: 10px; margin-bottom: 20px;">
+                            <h1 style="margin: 0; color: #1a202c;">You're Invited to Join Connect!</h1>
+                        </div>
+                        <p>Dear ${username[0]},</p>
+                        <p>You have been personally invited by <strong>${user.displayName}</strong> (<a href="mailto:${user.email}" style="color: #38b2ac;">${user.email}</a>) to join Connect.</p>
+                        <p>Connect is a platform where you can chat, collaborate, and stay connected effortlessly.</p>
+                        <p>To accept the invitation and join our community, please click the button below:</p>
+                        <a href="http://localhost:5173/" style="display: inline-block; padding: 10px 20px; margin: 20px 0; background-color: #38b2ac; color: #fff; text-decoration: none; border-radius: 5px;">Accept Invitation</a>
+                        <p>We look forward to seeing you online and helping you connect, chat, and collaborate with ease!</p>
+                        <p>Best regards,<br>Connect Team</p>
+                    </div>
+                    <div style="text-align: center; font-size: 12px; color: #777; margin-top: 20px;">
+                        <p>&copy; ${new Date().getFullYear()} Connect. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `
     };
+    
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {

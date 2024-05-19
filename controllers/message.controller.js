@@ -84,7 +84,6 @@ export const getMessages = async (req, res) => {
     }
 }
 
-
 export const deleteMessage = async (req, res) => {
     try {
         const messageId = req.body.messageId
@@ -115,11 +114,6 @@ export const deleteMessage = async (req, res) => {
         res.status(500).json({ msg: error.message })
     }
 }
-
-
-
-
-
 
 const convertToUniqueKey = (senderId, receiverId) => {
     const uniqueSenderId = BigInt(`0x${senderId}`).toString()
